@@ -19,7 +19,6 @@ export class LocalCheckpointLoader {
     public loadManifest(): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             console.log(this.weightsPath + MANIFEST_FILE);
-            debugger;
             fs.readFile(this.weightsPath + MANIFEST_FILE)
               .then((manifest: any) => {
                 this.checkpointManifest = JSON.parse(manifest);
