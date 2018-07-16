@@ -138,7 +138,8 @@ export declare class PoseNet {
  * smaller value to increase speed at the cost of accuracy.
  *
  */
-export declare function load(multiplier?: MobileNetMultiplier): Promise<PoseNet>;
+export declare function load(multiplier?: MobileNetMultiplier, local?: boolean): Promise<PoseNet>;
 export declare const mobilenetLoader: {
-    load: (multiplier: MobileNetMultiplier) => Promise<MobileNet>;
+    loadLocal: (multiplier: MobileNetMultiplier) => Promise<MobileNet>;
+    loadFromAPI: (multiplier: MobileNetMultiplier) => Promise<MobileNet>;
 };

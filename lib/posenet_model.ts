@@ -270,7 +270,7 @@ export class PoseNet {
  * smaller value to increase speed at the cost of accuracy.
  *
  */
-export async function load(multiplier: MobileNetMultiplier = 1.01):
+export async function load(multiplier: MobileNetMultiplier = 1.01, local: boolean = false):
     Promise<PoseNet> {
   if (tf == null) {
     throw new Error(
@@ -289,24 +289,37 @@ export async function load(multiplier: MobileNetMultiplier = 1.01):
           multiplier}.  No checkpoint exists for that ` +
           `multiplier. Must be one of ${possibleMultipliers.join(',')}.`);
 
-  const mobileNet = await mobilenetLoader.load(multiplier);
-
-  return new PoseNet(mobileNet);
+  if(local){
+    const mobileNet: MobileNet = await mobilenetLoader.loadLocal(multiplier);
+    return new PoseNet(mobileNet);
+  } else {
+    const mobileNet: MobileNet = await mobilenetLoader.loadFromAPI(multiplier);
+    return new PoseNet(mobileNet);
+  }
 }
 
 export const mobilenetLoader = {
-  load: async(multiplier: MobileNetMultiplier): Promise<MobileNet> => {
-    const checkpoint = checkpoints[multiplier];
-    // const localCheckpoint = localCheckpoints[multiplier];
+  loadLocal: async(multiplier: MobileNetMultiplier): Promise<MobileNet> => {
+    const localCheckpoint = localCheckpoints[multiplier];
 
+    console.log('loading weights from local drive');
+    console.log(localCheckpoint.url);
+
+    const localCheckpointLoader = new LocalCheckpointLoader(localCheckpoint.url);
+
+    const variables = await localCheckpointLoader.getAllVariables();
+
+    return new MobileNet(variables, localCheckpoint.architecture);
+  },
+  loadFromAPI: async(multiplier: MobileNetMultiplier): Promise<MobileNet> => {
+    const checkpoint = checkpoints[multiplier];
+
+    console.log('loading weights from API');
     console.log(checkpoint.url);
-    console.log(multiplier);
 
     const checkpointLoader = new CheckpointLoader(checkpoint.url);
-    // const localCheckpointLoader = new LocalCheckpointLoader(localCheckpoint.url);
 
     const variables = await checkpointLoader.getAllVariables();
-    // const variables = await localCheckpointLoader.getAllVariables();
 
     return new MobileNet(variables, checkpoint.architecture);
   }

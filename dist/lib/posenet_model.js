@@ -26,6 +26,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const tf = require("@tensorflow/tfjs");
 const checkpoint_loader_1 = require("./checkpoint_loader");
+const local_checkpoint_loader_1 = require("./local_checkpoint_loader");
 const checkpoints_1 = require("../checkpoints");
 // tslint:disable-next-line:max-line-length
 const mobilenet_1 = require("./mobilenet");
@@ -220,7 +221,7 @@ exports.PoseNet = PoseNet;
  * smaller value to increase speed at the cost of accuracy.
  *
  */
-function load(multiplier = 1.01) {
+function load(multiplier = 1.01, local = false) {
     return __awaiter(this, void 0, void 0, function* () {
         if (tf == null) {
             throw new Error(`Cannot find TensorFlow.js. If you are using a <script> tag, please ` +
@@ -231,21 +232,32 @@ function load(multiplier = 1.01) {
             `number.`);
         tf.util.assert(possibleMultipliers.indexOf(multiplier.toString()) >= 0, `invalid multiplier value of ${multiplier}.  No checkpoint exists for that ` +
             `multiplier. Must be one of ${possibleMultipliers.join(',')}.`);
-        const mobileNet = yield exports.mobilenetLoader.load(multiplier);
-        return new PoseNet(mobileNet);
+        if (local) {
+            const mobileNet = yield exports.mobilenetLoader.loadLocal(multiplier);
+            return new PoseNet(mobileNet);
+        }
+        else {
+            const mobileNet = yield exports.mobilenetLoader.loadFromAPI(multiplier);
+            return new PoseNet(mobileNet);
+        }
     });
 }
 exports.load = load;
 exports.mobilenetLoader = {
-    load: (multiplier) => __awaiter(this, void 0, void 0, function* () {
+    loadLocal: (multiplier) => __awaiter(this, void 0, void 0, function* () {
+        const localCheckpoint = checkpoints_1.localCheckpoints[multiplier];
+        console.log('loading weights from local drive');
+        console.log(localCheckpoint.url);
+        const localCheckpointLoader = new local_checkpoint_loader_1.LocalCheckpointLoader(localCheckpoint.url);
+        const variables = yield localCheckpointLoader.getAllVariables();
+        return new mobilenet_1.MobileNet(variables, localCheckpoint.architecture);
+    }),
+    loadFromAPI: (multiplier) => __awaiter(this, void 0, void 0, function* () {
         const checkpoint = checkpoints_1.checkpoints[multiplier];
-        // const localCheckpoint = localCheckpoints[multiplier];
+        console.log('loading weights from API');
         console.log(checkpoint.url);
-        console.log(multiplier);
         const checkpointLoader = new checkpoint_loader_1.CheckpointLoader(checkpoint.url);
-        // const localCheckpointLoader = new LocalCheckpointLoader(localCheckpoint.url);
         const variables = yield checkpointLoader.getAllVariables();
-        // const variables = await localCheckpointLoader.getAllVariables();
         return new mobilenet_1.MobileNet(variables, checkpoint.architecture);
     })
 };
