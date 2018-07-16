@@ -25,7 +25,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const tf = require("@tensorflow/tfjs");
-const local_checkpoint_loader_1 = require("./local_checkpoint_loader");
+const checkpoint_loader_1 = require("./checkpoint_loader");
 const checkpoints_1 = require("../checkpoints");
 // tslint:disable-next-line:max-line-length
 const mobilenet_1 = require("./mobilenet");
@@ -238,14 +238,14 @@ function load(multiplier = 1.01) {
 exports.load = load;
 exports.mobilenetLoader = {
     load: (multiplier) => __awaiter(this, void 0, void 0, function* () {
-        // const checkpoint = checkpoints[multiplier];
-        const localCheckpoint = checkpoints_1.localCheckpoints[multiplier];
-        console.log(localCheckpoint.url);
+        const checkpoint = checkpoints_1.checkpoints[multiplier];
+        // const localCheckpoint = localCheckpoints[multiplier];
+        console.log(checkpoint.url);
         console.log(multiplier);
-        // const checkpointLoader = new CheckpointLoader(checkpoint.url);
-        const localCheckpointLoader = new local_checkpoint_loader_1.LocalCheckpointLoader(localCheckpoint.url);
-        // const variables = await checkpointLoader.getAllVariables();
-        const variables = yield localCheckpointLoader.getAllVariables();
-        return new mobilenet_1.MobileNet(variables, localCheckpoint.architecture);
+        const checkpointLoader = new checkpoint_loader_1.CheckpointLoader(checkpoint.url);
+        // const localCheckpointLoader = new LocalCheckpointLoader(localCheckpoint.url);
+        const variables = yield checkpointLoader.getAllVariables();
+        // const variables = await localCheckpointLoader.getAllVariables();
+        return new mobilenet_1.MobileNet(variables, checkpoint.architecture);
     })
 };
