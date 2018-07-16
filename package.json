@@ -1,6 +1,6 @@
 {
   "name": "tf-posenet",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "PoseNet model for Pose Estimation in web-based apps.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
