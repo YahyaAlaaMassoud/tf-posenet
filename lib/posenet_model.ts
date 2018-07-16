@@ -296,18 +296,18 @@ export async function load(multiplier: MobileNetMultiplier = 1.01):
 
 export const mobilenetLoader = {
   load: async(multiplier: MobileNetMultiplier): Promise<MobileNet> => {
-    // const checkpoint = checkpoints[multiplier];
-    const localCheckpoint = localCheckpoints[multiplier];
+    const checkpoint = checkpoints[multiplier];
+    // const localCheckpoint = localCheckpoints[multiplier];
 
-    console.log(localCheckpoint.url);
+    console.log(checkpoint.url);
     console.log(multiplier);
 
-    // const checkpointLoader = new CheckpointLoader(checkpoint.url);
-    const localCheckpointLoader = new LocalCheckpointLoader(localCheckpoint.url);
+    const checkpointLoader = new CheckpointLoader(checkpoint.url);
+    // const localCheckpointLoader = new LocalCheckpointLoader(localCheckpoint.url);
 
-    // const variables = await checkpointLoader.getAllVariables();
-    const variables = await localCheckpointLoader.getAllVariables();
+    const variables = await checkpointLoader.getAllVariables();
+    // const variables = await localCheckpointLoader.getAllVariables();
 
-    return new MobileNet(variables, localCheckpoint.architecture);
+    return new MobileNet(variables, checkpoint.architecture);
   }
 };
