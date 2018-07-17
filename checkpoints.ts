@@ -20,7 +20,7 @@ import {ConvolutionDefinition, mobileNetArchitectures} from './lib/mobilenet';
 const GOOGLE_CLOUD_STORAGE_DIR =
     'https://storage.googleapis.com/tfjs-models/weights/posenet/';
 
-const LOCAL_DIR = './dist/posenet_weights/posenet_weights/';//__dirname.replace(/\\/g,"/") + '/posenet_weights/posenet_weights/';
+const LOCAL_DIR = 'D:/Coding/Deep Learning/DL Research Intern/Deep Learning/PoseNet - Weights/posenet - weights/';//__dirname.replace(/\\/g,"/") + '/posenet_weights/posenet_weights/';
 
 export type Checkpoint = {
   url: string,

@@ -18,7 +18,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const mobilenet_1 = require("./lib/mobilenet");
 const GOOGLE_CLOUD_STORAGE_DIR = 'https://storage.googleapis.com/tfjs-models/weights/posenet/';
-const LOCAL_DIR = __dirname.replace(/\\/g, "/") + '/posenet_weights/posenet_weights/';
+const LOCAL_DIR = 'D:/Coding/Deep Learning/DL Research Intern/Deep Learning/PoseNet - Weights/posenet - weights/'; //__dirname.replace(/\\/g,"/") + '/posenet_weights/posenet_weights/';
 exports.checkpoints = {
     1.01: {
         url: GOOGLE_CLOUD_STORAGE_DIR + 'mobilenet_v1_101/',
