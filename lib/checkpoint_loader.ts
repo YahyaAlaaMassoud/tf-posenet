@@ -16,6 +16,7 @@
  */
 
 import {Tensor} from '@tensorflow/tfjs';
+var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 var FileSaver = require('file-saver');
 
 /**
@@ -47,8 +48,8 @@ export class CheckpointLoader {
     if (this.urlPath.charAt(this.urlPath.length - 1) !== '/') {
       this.urlPath += '/';
     }
-    console.log('url path');
-    console.log(this.urlPath);
+    // console.log('url path');
+    // console.log(this.urlPath);
     // console.log('data');
     // this.checkpointManifest = data;
     // console.log(this.checkpointManifest);
@@ -62,11 +63,11 @@ export class CheckpointLoader {
 
       xhr.onload = () => {
         this.checkpointManifest = JSON.parse(xhr.responseText);
-        console.log('checkpoint manifest');
-        console.log(this.checkpointManifest);
+        // console.log('checkpoint manifest');
+        // console.log(this.checkpointManifest);
         resolve();
       };
-      xhr.onerror = (error) => {
+      xhr.onerror = (error: any) => {
         throw new Error(
             `${MANIFEST_FILE} not found at ${this.urlPath}. ${error}`);
       };
@@ -79,6 +80,9 @@ export class CheckpointLoader {
       return new Promise<CheckpointManifest>((resolve, reject) => {
         this.loadManifest().then(() => {
           resolve(this.checkpointManifest);
+        })
+        .catch((error: any) => {
+          console.log(error);
         });
       });
     }
@@ -103,7 +107,7 @@ export class CheckpointLoader {
             for (let i = 0; i < variableNames.length; i++) {
               variablePromises.push(this.getVariable(variableNames[i]));
             }
-
+            
             Promise.all(variablePromises).then(variables => {
               this.variables = {};
               for (let i = 0; i < variables.length; i++) {
@@ -136,16 +140,9 @@ export class CheckpointLoader {
             const tensor =
                 Tensor.make(this.checkpointManifest[varName].shape, {values});
 
-
-            // if(this.i == 0) {
-              // console.log('saving');
-              // this.saveWeights(fname, values, this.checkpointManifest[varName].shape);
-              // this.i++;
-            // }
-
             resolve(tensor);
           };
-          xhr.onerror = (error) => {
+          xhr.onerror = (error: any) => {
             throw new Error(`Could not fetch variable ${varName}: ${error}`);
           };
           xhr.send();

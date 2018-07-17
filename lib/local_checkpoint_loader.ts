@@ -1,7 +1,8 @@
 
 import { Tensor } from '@tensorflow/tfjs';
 import { CheckpointManifest } from './checkpoint_loader';
-import * as fs from 'ts-fs';
+// import * as fs1 from 'ts-fs';
+import * as fs from 'fs';
 
 const MANIFEST_FILE = 'manifest.json';
 
@@ -18,16 +19,23 @@ export class LocalCheckpointLoader {
 
     public loadManifest(): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            console.log(this.weightsPath + MANIFEST_FILE);
-            fs.readFile(this.weightsPath + MANIFEST_FILE)
-              .then((manifest: any) => {
-                this.checkpointManifest = JSON.parse(manifest);
+            // console.log(this.weightsPath + MANIFEST_FILE);
+            try {
+                let buff: Buffer = fs.readFileSync(this.weightsPath + MANIFEST_FILE);
+                this.checkpointManifest = JSON.parse(buff.toString());
                 resolve();
-              })
-              .catch((error: any) => {
-                  console.log(error);
+            } catch(error) {
                 throw new Error(`${MANIFEST_FILE} not found at ${this.weightsPath}. ${error}`);
-              });
+            }
+            // fs.readFile(this.weightsPath + MANIFEST_FILE)
+            //   .then((manifest: any) => {
+            //     this.checkpointManifest = JSON.parse(manifest);
+            //     resolve();
+            //   })
+            //   .catch((error: any) => {
+            //       console.log(error);
+            //     throw new Error(`${MANIFEST_FILE} not found at ${this.weightsPath}. ${error}`);
+            //   });
         });
     }
 
@@ -37,6 +45,9 @@ export class LocalCheckpointLoader {
                 this.loadManifest()
                     .then(() => {
                         resolve(this.checkpointManifest);
+                    })
+                    .catch((error: any) => {
+                        throw new Error(`Error in loading checkpoint manifest file. ${error}`);
                     });
             });
         }
@@ -81,23 +92,39 @@ export class LocalCheckpointLoader {
         const variableRequestPromiseMethod =
             (resolve: (tensor: Tensor) => void, reject: () => void) => {
                 const filename = this.checkpointManifest[varName].filename;
-                fs.readFile(this.weightsPath + 'weights/' + filename + '.json')
-                  .then((res: any) => {
-                      const result = JSON.parse(res);
-
-                      let arr = [];
-                      for(let r in result) {
+                try {
+                    let buff: Buffer = fs.readFileSync(this.weightsPath + 'weights/' + filename + '.json');
+                    const result = JSON.parse(buff.toString());
+                    
+                    let arr = [];
+                    for(let r in result) {
                         arr.push(result[r]);
-                      }
+                    }
 
-                      const values = Float32Array.from(arr);
-                      const tensor = Tensor.make(this.checkpointManifest[varName].shape, {values});
+                    const values= Float32Array.from(arr);
+                    const tensor = Tensor.make(this.checkpointManifest[varName].shape, {values});
 
-                      resolve(tensor);
-                  })
-                  .catch((error: any) => {
-                      throw new Error(`Could not fetch variable ${varName}: ${error}`);
-                  })
+                    resolve(tensor);
+                } catch(error) {
+                    throw new Error(`Could not fetch variable ${varName}: ${error}`);
+                }
+                // fs1.readFile(this.weightsPath + 'weights/' + filename + '.json')
+                //   .then((res: any) => {
+                //       const result = JSON.parse(res);
+
+                //       let arr = [];
+                //       for(let r in result) {
+                //         arr.push(result[r]);
+                //       }
+
+                //       const values = Float32Array.from(arr);
+                //       const tensor = Tensor.make(this.checkpointManifest[varName].shape, {values});
+
+                //       resolve(tensor);
+                //   })
+                //   .catch((error: any) => {
+                //       throw new Error(`Could not fetch variable ${varName}: ${error}`);
+                //   })
             };
     
         if (this.checkpointManifest == null) {
@@ -105,6 +132,9 @@ export class LocalCheckpointLoader {
                 this.loadManifest()
                     .then(() => {
                         new Promise<Tensor>(variableRequestPromiseMethod).then(resolve);
+                    })
+                    .catch((error: any) => {
+                        throw new Error(`Error in loading checkpoint manifest file. ${error}`);
                     });
             });
         }

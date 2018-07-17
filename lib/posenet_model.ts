@@ -318,9 +318,9 @@ export const mobilenetLoader = {
     console.log(checkpoint.url);
 
     const checkpointLoader = new CheckpointLoader(checkpoint.url);
-
+    
     const variables = await checkpointLoader.getAllVariables();
-
+    
     return new MobileNet(variables, checkpoint.architecture);
   }
 };

@@ -17,6 +17,7 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 const tfjs_1 = require("@tensorflow/tfjs");
+var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 var FileSaver = require('file-saver');
 const MANIFEST_FILE = 'manifest.json';
 class CheckpointLoader {
@@ -25,8 +26,8 @@ class CheckpointLoader {
         if (this.urlPath.charAt(this.urlPath.length - 1) !== '/') {
             this.urlPath += '/';
         }
-        console.log('url path');
-        console.log(this.urlPath);
+        // console.log('url path');
+        // console.log(this.urlPath);
         // console.log('data');
         // this.checkpointManifest = data;
         // console.log(this.checkpointManifest);
@@ -38,8 +39,8 @@ class CheckpointLoader {
             xhr.open('GET', this.urlPath + MANIFEST_FILE);
             xhr.onload = () => {
                 this.checkpointManifest = JSON.parse(xhr.responseText);
-                console.log('checkpoint manifest');
-                console.log(this.checkpointManifest);
+                // console.log('checkpoint manifest');
+                // console.log(this.checkpointManifest);
                 resolve();
             };
             xhr.onerror = (error) => {
@@ -53,6 +54,9 @@ class CheckpointLoader {
             return new Promise((resolve, reject) => {
                 this.loadManifest().then(() => {
                     resolve(this.checkpointManifest);
+                })
+                    .catch((error) => {
+                    console.log(error);
                 });
             });
         }
@@ -99,11 +103,6 @@ class CheckpointLoader {
                 }
                 const values = new Float32Array(xhr.response);
                 const tensor = tfjs_1.Tensor.make(this.checkpointManifest[varName].shape, { values });
-                // if(this.i == 0) {
-                // console.log('saving');
-                // this.saveWeights(fname, values, this.checkpointManifest[varName].shape);
-                // this.i++;
-                // }
                 resolve(tensor);
             };
             xhr.onerror = (error) => {
