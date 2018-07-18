@@ -16,7 +16,7 @@ describe('PoseNet loading weights locally and from API test', () => {
         index.load(0.75, true)
              .then((res) => {
                  console.log('done local');
-                 console.log(res);
+                //  console.log(res);
              })
              .catch((error) => {
                  console.log(error);
